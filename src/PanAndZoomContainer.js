@@ -24,6 +24,7 @@ const PanAndZoomContainer = ({
     incrementZoom,
     decrementZoom,
     resetZoom,
+    handleClick,
   } = usePanAndZoom({ scroll, contentSpan });
 
   return (
@@ -33,6 +34,7 @@ const PanAndZoomContainer = ({
           style={{ ...STYLES, display: 'flex', flexDirection: 'column', overflow: 'auto', ...diagramContainerStyles }}
           onScroll={handleScroll}
           ref={combinedRef}
+          onClick={handleClick}
           {...panZoomHandlers}
           className="diagramContainer"
         >

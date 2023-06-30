@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import usePanZoom from 'use-pan-and-zoom';
 import { useDiagramContext } from '../diagramContext';
 
@@ -17,6 +17,18 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
   });
 
   const { setZoom: setDiagramZoom, containerRef } = useDiagramContext();
+
+  const [cursor, setCursor] = useState({ x: 0, y: 0 });
+
+  function handleClick(event) {
+    console.log(`ex:${event.clientX}`);
+    console.log(`ey:${event.clientY}`);
+    setCursor({ x: event.clientX, y: event.clientY });
+    incrementZoom();
+    //setZoom(prev=>prev*1.1)
+    // console.log(`cx:${cursor.x}`);
+    // console.log(`cy:${cursor.y}`)
+  }
 
   const incrementZoom = useCallback(() => {
     const incrementedZoom = zoom + STEP_SIZE;
@@ -55,8 +67,8 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     diagramContainerRef.current.style.transform = `translate3D(${translateX}px, ${translateY}px, 0) scale(${zoom})`;
 
     const { scrollLeft, scrollTop } = getContainerScroll(
-      scroll.left,
-      scroll.top,
+      scroll.left + (cursor.x - (clientWidth + 32) / 2),
+      scroll.top - (-cursor.y + (clientHeight + 32) / 2),
       zoom,
       previousZoom.current,
       clientWidth,
@@ -82,6 +94,7 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     incrementZoom,
     decrementZoom,
     resetZoom,
+    handleClick,
   };
 };
 
