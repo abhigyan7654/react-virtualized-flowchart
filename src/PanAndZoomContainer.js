@@ -25,8 +25,11 @@ const PanAndZoomContainer = ({
     decrementZoom,
     resetZoom,
     transform,
-
+    // handleClick,
     handleWheel,
+    // handleMouseDown,
+    // handleMouseUp,
+    // handleMouseMove
   } = usePanAndZoom({ scroll, contentSpan });
 
   return (
@@ -40,6 +43,9 @@ const PanAndZoomContainer = ({
           // {...panZoomHandlers}
           // onClick={handleClick}
           onWheel={handleWheel}
+          //  onMouseDown={handleMouseDown}
+          //  onMouseUp={handleMouseUp}
+          //  onMouseMove={handleMouseMove}
         >
           {renderHeader ? renderHeader() : null}
           <div
@@ -47,8 +53,8 @@ const PanAndZoomContainer = ({
             style={{
               ...STYLES,
               overflow: 'visible',
-              position: 'relative',
-              // transform
+              position: 'fixed',
+              transform,
             }}
           >
             {children()}
