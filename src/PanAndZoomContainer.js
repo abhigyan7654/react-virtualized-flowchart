@@ -27,9 +27,9 @@ const PanAndZoomContainer = ({
     transform,
     // handleClick,
     handleWheel,
-    // handleMouseDown,
-    // handleMouseUp,
-    // handleMouseMove
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
   } = usePanAndZoom({ scroll, contentSpan });
 
   return (
@@ -40,7 +40,7 @@ const PanAndZoomContainer = ({
           onScroll={handleScroll}
           ref={combinedRef}
           className="diagramContainer"
-          // {...panZoomHandlers}
+          {...panZoomHandlers}
           // onClick={handleClick}
           onWheel={handleWheel}
           //  onMouseDown={handleMouseDown}
