@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import { useState } from 'react';
 import { usePanAndZoom } from './hooks/usePanAndZoom';
 
 const STYLES = {
@@ -30,6 +30,8 @@ const PanAndZoomContainer = ({
     handleMouseDown,
     handleMouseUp,
     handleMouseMove,
+    key,
+    viewport,
   } = usePanAndZoom({ scroll, contentSpan });
 
   return (
@@ -40,7 +42,7 @@ const PanAndZoomContainer = ({
           onScroll={handleScroll}
           ref={combinedRef}
           className="diagramContainer"
-          {...panZoomHandlers}
+          //  {...panZoomHandlers}
           // onClick={handleClick}
           onWheel={handleWheel}
           //  onMouseDown={handleMouseDown}
@@ -54,7 +56,7 @@ const PanAndZoomContainer = ({
               ...STYLES,
               overflow: 'visible',
               position: 'fixed',
-              transform,
+              transform: key ? transform : transform, //`translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
             }}
           >
             {children()}
