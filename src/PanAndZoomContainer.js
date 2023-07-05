@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { usePanAndZoom } from './hooks/usePanAndZoom';
 
 const STYLES = {
@@ -34,6 +34,15 @@ const PanAndZoomContainer = ({
     viewport,
   } = usePanAndZoom({ scroll, contentSpan });
 
+  useEffect(() => {
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    // Make sure to clean up event listener when component unmounts
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
   return (
     <div style={{ ...STYLES, position: 'relative' }}>
       <div style={STYLES}>
@@ -44,7 +53,7 @@ const PanAndZoomContainer = ({
           className="diagramContainer"
           //  {...panZoomHandlers}
           // onClick={handleClick}
-          onWheel={handleWheel}
+          //onWheel={handleWheel}
           //  onMouseDown={handleMouseDown}
           //  onMouseUp={handleMouseUp}
           //  onMouseMove={handleMouseMove}

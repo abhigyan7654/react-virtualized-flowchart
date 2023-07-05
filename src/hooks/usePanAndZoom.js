@@ -86,6 +86,7 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     let prevZoom = zoom;
     console.log('prevZoom', prevZoom);
     if (e.ctrlKey) {
+      e.preventDefault();
       setKey(true);
       const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
       const pointerPosition = {
@@ -96,7 +97,7 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     }
     // If `ctrlKey` is `false`, it's a two-finger scroll (panning)
     else {
-      // e.preventDefault();
+      e.preventDefault();
       console.log('ctrlKey false');
       // setKey(false);
       setPan(({ x, y }) => ({
