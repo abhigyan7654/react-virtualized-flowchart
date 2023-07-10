@@ -6,10 +6,10 @@ import { MIN_ZOOM, MAX_ZOOM, STEP_SIZE, CENTER, DEFAULT_ZOOM } from '../constant
 
 import { getTranslate3DCoordinates, getContainerScroll } from '../helper';
 
-const usePanAndZoom = ({ scroll, contentSpan }) => {
+const usePanAndZoom = ({ updateScroll, scroll, contentSpan }) => {
   const previousZoom = useRef(DEFAULT_ZOOM);
   const diagramContainerRef = useRef();
-  const { panZoomHandlers, setContainer, zoom, pan, setZoom, transform, setPan, getPositionOnElement } = usePanZoom({
+  const { panZoomHandlers, setContainer, zoom, pan, setZoom, transform, setPan } = usePanZoom({
     enablePan: false,
     disableWheel: true,
     minZoom: MIN_ZOOM,
@@ -17,115 +17,58 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
   });
 
   const { setZoom: setDiagramZoom, containerRef } = useDiagramContext();
-  const [key, setKey] = useState(true);
 
-  // function handleWheel(e) {
-  //   if (e.ctrlKey) {
-  //     setZoom(prev => prev * 1.1);
-  //    setZoom(prev => prev * (1 / 1.1));
-  //   }
-  //   else{
-  //   console.log('in handleWheel');
-  //   // setZoom(prev=>prev*1.1)
-  //   // setZoom(prev=>(prev*(1/1.1)));
-  //   }
-
-  // }
-  // const [viewport, setViewport] = useState({
-  //   x: 0,
-  //   y: 0,
-  //   width: window.innerWidth,
-  //   height: window.innerHeight,
-  //   zoom: 1
-  // });
-
-  // const [panning, setPanning] = useState(false);
-  // const [startPanPoint, setStartPanPoint] = useState({ x: 0, y: 0 });
-
-  // const [mousePosition, setMousePosition] = useState({x: 0, y: 0});
-  // const [translation, setTranslation] = useState({x: 0, y: 0});
-
-  // const handleMouseDown = (e) => {
-  //   setPanning(true);
-  //   console.log('Mouse down event:', e);
-  //   setStartPanPoint({ x: e.clientX, y: e.clientY });
-  // };
-
-  // const handleMouseUp = (e) => {
-  //   console.log('Mouse up event:', e);
-  //   setPanning(false);
-  // };
-
-  // const handleMouseMove = (e) => {
-  //   console.log('Mouse moving:', e);
-  //   if (panning) {
-  //     setTranslation({
-  //         x: translation.x + e.clientX - mousePosition.x,
-  //         y: translation.y + e.clientY - mousePosition.y,
-  //     });
-  //     setMousePosition({
-  //         x: e.clientX,
-  //         y: e.clientY,
-  //     });
-  // }
-  // };
+  const [cursorPosition, setCursorPosition] = useState({
+    x: 0,
+    y: 0,
+  });
 
   const handleWheel = e => {
-    // You can adjust the zoom speed here if needed
-    // const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
-
-    // const rect = e.target.getBoundingClientRect();
-    // const x = e.clientX - rect.left; // x position within the element.
-    // const y = e.clientY - rect.top; // y position within the element.
-
-    // // Calculate the point under cursor in world coordinates
-    // const cursorX = (x / viewport.width) * viewport.zoom + viewport.x;
-    // const cursorY = (y / viewport.height) * viewport.zoom + viewport.y;
-    // console.log(e.deltaY);
-    // // If `ctrlKey` is `true`, it's a pinch-to-zoom gesture
-    let prevZoom = zoom;
-    console.log('prevZoom', prevZoom);
     if (e.ctrlKey) {
       e.preventDefault();
-      setKey(true);
       const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
       const pointerPosition = {
         x: e.pageX,
         y: e.pageY,
       };
+
+      const width = 4740 * previousZoom.current * scaleChange; //determining the dimensions of diagramContainerRef
+      const height = 2020 * previousZoom.current * scaleChange; // 4740*2020 is dimension on 100% or zoom =1
+
+      scroll.left = (width - e.pageX) / 2; //
+      scroll.top = (height - e.pageY) / 2;
+
+      // updateScroll(e.pageX, e.pageY)
+      // console.log(previousZoom.current);
+      // console.log({ width, height });
+
+      // //setCursorPosition({x:e.pageX,y:e.pageY});
+      // console.log({ scroll });
       setZoom(previousZoom => previousZoom * scaleChange, pointerPosition);
     }
     // If `ctrlKey` is `false`, it's a two-finger scroll (panning)
     else {
       e.preventDefault();
-      console.log('ctrlKey false');
-      // setKey(false);
+      const width = 4740 * previousZoom.current;
+      const height = 2020 * previousZoom.current;
       setPan(({ x, y }) => ({
         x: x - e.deltaX,
         y: y - e.deltaY,
       }));
-
-      console.log('inTwoFingerScroll', zoom);
     }
   };
 
   const incrementZoom = useCallback(() => {
     const incrementedZoom = zoom + STEP_SIZE;
-    setKey(true);
-    console.log('increment zoom');
-    //console.log(incrementedZoom);
     setZoom(incrementedZoom, CENTER);
   }, [zoom, setZoom]);
 
   const decrementZoom = useCallback(() => {
     const decrementedZoom = zoom - STEP_SIZE;
-    setKey(true);
-    //setCursor({x:0,y:0});
     setZoom(decrementedZoom, CENTER);
   }, [zoom, setZoom]);
 
   const resetZoom = useCallback(() => {
-    setKey(true);
     setZoom(DEFAULT_ZOOM, CENTER);
   }, [setZoom]);
 
@@ -150,9 +93,6 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     const { translateX, translateY } = getTranslate3DCoordinates(clientWidth, clientHeight, pan, zoom, contentSpan);
 
     //diagramContainerRef.current.style.transform =  `translate3D(${translateX}px, ${translateY}px, 0) scale(${zoom})`
-    //`translate3D(${translateX}px, ${translateY}px, 0)
-    //    diagramContainerRef.current.style.transform = `scale(${zoom})`;
-    //console.log('in use effect');
 
     const { scrollLeft, scrollTop } = getContainerScroll(
       scroll.left, //+ (cursor.x - (clientWidth + 32) / 2),
@@ -162,12 +102,9 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
       clientWidth,
       clientHeight
     );
+    // container.scrollLeft = scrollLeft; //+(cursor.x-(clientWidth+32)/2);
+    // container.scrollTop = scrollTop; //-(-cursor.y+(clientHeight+32)/2);
 
-    container.scrollLeft = scrollLeft; //+(cursor.x-(clientWidth+32)/2);
-    container.scrollTop = scrollTop; //-(-cursor.y+(clientHeight+32)/2);
-
-    // console.log(`sl:${scrollLeft}`);
-    // console.log(`st:${scrollTop}`)
     previousZoom.current = zoom;
   }, [contentSpan.x, contentSpan.y, pan.x, pan.y, zoom]);
 
@@ -188,8 +125,6 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     //handleClick,
     handleWheel,
     pan,
-    key,
-    setKey,
     // handleMouseDown,
     // handleMouseUp,
     // handleMouseMove,

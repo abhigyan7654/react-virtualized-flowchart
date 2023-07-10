@@ -15,6 +15,7 @@ const PanAndZoomContainer = ({
   contentSpan,
   renderControlPanel,
   renderHeader,
+  updateScroll,
 }) => {
   const {
     zoom,
@@ -25,19 +26,12 @@ const PanAndZoomContainer = ({
     decrementZoom,
     resetZoom,
     transform,
-    // handleClick,
     handleWheel,
-    handleMouseDown,
-    handleMouseUp,
-    handleMouseMove,
-    key,
-    viewport,
-  } = usePanAndZoom({ scroll, contentSpan });
+  } = usePanAndZoom({ updateScroll, scroll, contentSpan });
 
   useEffect(() => {
     window.addEventListener('wheel', handleWheel, { passive: false });
 
-    // Make sure to clean up event listener when component unmounts
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
@@ -51,12 +45,6 @@ const PanAndZoomContainer = ({
           onScroll={handleScroll}
           ref={combinedRef}
           className="diagramContainer"
-          //  {...panZoomHandlers}
-          // onClick={handleClick}
-          //onWheel={handleWheel}
-          //  onMouseDown={handleMouseDown}
-          //  onMouseUp={handleMouseUp}
-          //  onMouseMove={handleMouseMove}
         >
           {renderHeader ? renderHeader() : null}
           <div
@@ -65,7 +53,7 @@ const PanAndZoomContainer = ({
               ...STYLES,
               overflow: 'visible',
               position: 'fixed',
-              transform: key ? transform : transform, //`translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+              transform: transform, //`translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
             }}
           >
             {children()}
