@@ -424,7 +424,6 @@ class Diagram extends React.PureComponent {
 
   render() {
     const [extremeX, extremeY] = this.getExtremeXAndY();
-
     return (
       <DiagramContextProvider zoom={this.state.zoom} setZoom={this.setZoom} containerRef={this.containerRef}>
         <div style={{ position: 'relative', height: '100%' }}>

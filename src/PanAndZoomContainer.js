@@ -19,7 +19,6 @@ const PanAndZoomContainer = ({
 }) => {
   const {
     zoom,
-    panZoomHandlers,
     combinedRef,
     diagramContainerRef,
     incrementZoom,
@@ -53,7 +52,7 @@ const PanAndZoomContainer = ({
               ...STYLES,
               overflow: 'visible',
               position: 'fixed',
-              transform: transform, //`translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+              transform: transform,
             }}
           >
             {children()}

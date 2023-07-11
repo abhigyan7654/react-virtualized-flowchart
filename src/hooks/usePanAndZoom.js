@@ -18,44 +18,26 @@ const usePanAndZoom = ({ updateScroll, scroll, contentSpan }) => {
 
   const { setZoom: setDiagramZoom, containerRef } = useDiagramContext();
 
-  const [cursorPosition, setCursorPosition] = useState({
-    x: 0,
-    y: 0,
-  });
-
   const handleWheel = e => {
+    e.preventDefault();
+
+    const { top, left } = diagramContainerRef.current.getBoundingClientRect();
     if (e.ctrlKey) {
-      e.preventDefault();
       const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
       const pointerPosition = {
         x: e.pageX,
         y: e.pageY,
       };
-
-      const width = 4740 * previousZoom.current * scaleChange; //determining the dimensions of diagramContainerRef
-      const height = 2020 * previousZoom.current * scaleChange; // 4740*2020 is dimension on 100% or zoom =1
-
-      scroll.left = (width - e.pageX) / 2; //
-      scroll.top = (height - e.pageY) / 2;
-
-      // updateScroll(e.pageX, e.pageY)
-      // console.log(previousZoom.current);
-      // console.log({ width, height });
-
-      // //setCursorPosition({x:e.pageX,y:e.pageY});
-      // console.log({ scroll });
       setZoom(previousZoom => previousZoom * scaleChange, pointerPosition);
     }
     // If `ctrlKey` is `false`, it's a two-finger scroll (panning)
     else {
-      e.preventDefault();
-      const width = 4740 * previousZoom.current;
-      const height = 2020 * previousZoom.current;
       setPan(({ x, y }) => ({
         x: x - e.deltaX,
         y: y - e.deltaY,
       }));
     }
+    updateScroll({ scrollLeft: -left, scrollTop: -top });
   };
 
   const incrementZoom = useCallback(() => {
@@ -90,20 +72,20 @@ const usePanAndZoom = ({ updateScroll, scroll, contentSpan }) => {
     const container = containerRef.current;
     const { clientWidth, clientHeight } = container;
 
-    const { translateX, translateY } = getTranslate3DCoordinates(clientWidth, clientHeight, pan, zoom, contentSpan);
+    //const { translateX, translateY } = getTranslate3DCoordinates(clientWidth, clientHeight, pan, zoom, contentSpan);
 
     //diagramContainerRef.current.style.transform =  `translate3D(${translateX}px, ${translateY}px, 0) scale(${zoom})`
 
     const { scrollLeft, scrollTop } = getContainerScroll(
-      scroll.left, //+ (cursor.x - (clientWidth + 32) / 2),
-      scroll.top, // - (-cursor.y + (clientHeight + 32) / 2),
+      scroll.left,
+      scroll.top,
       zoom,
       previousZoom.current,
       clientWidth,
       clientHeight
     );
-    // container.scrollLeft = scrollLeft; //+(cursor.x-(clientWidth+32)/2);
-    // container.scrollTop = scrollTop; //-(-cursor.y+(clientHeight+32)/2);
+    container.scrollLeft = scrollLeft;
+    container.scrollTop = scrollTop;
 
     previousZoom.current = zoom;
   }, [contentSpan.x, contentSpan.y, pan.x, pan.y, zoom]);
@@ -122,13 +104,8 @@ const usePanAndZoom = ({ updateScroll, scroll, contentSpan }) => {
     decrementZoom,
     resetZoom,
     transform,
-    //handleClick,
     handleWheel,
     pan,
-    // handleMouseDown,
-    // handleMouseUp,
-    // handleMouseMove,
-    //viewport
   };
 };
 
