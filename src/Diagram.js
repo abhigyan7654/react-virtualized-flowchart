@@ -29,6 +29,7 @@ import {
 
 import { MARGIN, DEFAULT_CONTAINER_RECT, DEFAULT_ZOOM } from './constants';
 import { DiagramContextProvider } from './diagramContext';
+
 class Diagram extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -423,7 +424,6 @@ class Diagram extends React.PureComponent {
 
   render() {
     const [extremeX, extremeY] = this.getExtremeXAndY();
-
     return (
       <DiagramContextProvider zoom={this.state.zoom} setZoom={this.setZoom} containerRef={this.containerRef}>
         <div style={{ position: 'relative', height: '100%' }}>
@@ -435,6 +435,7 @@ class Diagram extends React.PureComponent {
             renderControlPanel={this.renderControlPanel}
             contentSpan={{ x: extremeX, y: extremeY }}
             renderHeader={this.props.renderHeader}
+            updateScroll={this.updateScroll}
           >
             {() => this.renderChildren(extremeX, extremeY)}
           </PanAndZoomContainer>

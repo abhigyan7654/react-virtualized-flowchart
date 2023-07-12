@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import usePanZoom from 'use-pan-and-zoom';
 import { useDiagramContext } from '../diagramContext';
 
@@ -6,10 +6,10 @@ import { MIN_ZOOM, MAX_ZOOM, STEP_SIZE, CENTER, DEFAULT_ZOOM } from '../constant
 
 import { getTranslate3DCoordinates, getContainerScroll } from '../helper';
 
-const usePanAndZoom = ({ scroll, contentSpan }) => {
+const usePanAndZoom = ({ updateScroll, scroll, contentSpan }) => {
   const previousZoom = useRef(DEFAULT_ZOOM);
   const diagramContainerRef = useRef();
-  const { panZoomHandlers, setContainer, zoom, pan, setZoom } = usePanZoom({
+  const { panZoomHandlers, setContainer, zoom, pan, setZoom, transform, setPan } = usePanZoom({
     enablePan: false,
     disableWheel: true,
     minZoom: MIN_ZOOM,
@@ -17,6 +17,28 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
   });
 
   const { setZoom: setDiagramZoom, containerRef } = useDiagramContext();
+
+  const handleWheel = e => {
+    e.preventDefault();
+
+    const { top, left } = diagramContainerRef.current.getBoundingClientRect();
+    if (e.ctrlKey) {
+      const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
+      const pointerPosition = {
+        x: e.pageX,
+        y: e.pageY,
+      };
+      setZoom(previousZoom => previousZoom * scaleChange, pointerPosition);
+    }
+    // If `ctrlKey` is `false`, it's a two-finger scroll (panning)
+    else {
+      setPan(({ x, y }) => ({
+        x: x - e.deltaX,
+        y: y - e.deltaY,
+      }));
+    }
+    updateScroll({ scrollLeft: -left, scrollTop: -top });
+  };
 
   const incrementZoom = useCallback(() => {
     const incrementedZoom = zoom + STEP_SIZE;
@@ -50,9 +72,9 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     const container = containerRef.current;
     const { clientWidth, clientHeight } = container;
 
-    const { translateX, translateY } = getTranslate3DCoordinates(clientWidth, clientHeight, pan, zoom, contentSpan);
+    //const { translateX, translateY } = getTranslate3DCoordinates(clientWidth, clientHeight, pan, zoom, contentSpan);
 
-    diagramContainerRef.current.style.transform = `translate3D(${translateX}px, ${translateY}px, 0) scale(${zoom})`;
+    //diagramContainerRef.current.style.transform =  `translate3D(${translateX}px, ${translateY}px, 0) scale(${zoom})`
 
     const { scrollLeft, scrollTop } = getContainerScroll(
       scroll.left,
@@ -62,7 +84,6 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
       clientWidth,
       clientHeight
     );
-
     container.scrollLeft = scrollLeft;
     container.scrollTop = scrollTop;
 
@@ -82,6 +103,9 @@ const usePanAndZoom = ({ scroll, contentSpan }) => {
     incrementZoom,
     decrementZoom,
     resetZoom,
+    transform,
+    handleWheel,
+    pan,
   };
 };
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import { useEffect } from 'react';
 import { usePanAndZoom } from './hooks/usePanAndZoom';
 
 const STYLES = {
@@ -15,16 +15,26 @@ const PanAndZoomContainer = ({
   contentSpan,
   renderControlPanel,
   renderHeader,
+  updateScroll,
 }) => {
   const {
     zoom,
-    panZoomHandlers,
     combinedRef,
     diagramContainerRef,
     incrementZoom,
     decrementZoom,
     resetZoom,
-  } = usePanAndZoom({ scroll, contentSpan });
+    transform,
+    handleWheel,
+  } = usePanAndZoom({ updateScroll, scroll, contentSpan });
+
+  useEffect(() => {
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   return (
     <div style={{ ...STYLES, position: 'relative' }}>
@@ -33,7 +43,6 @@ const PanAndZoomContainer = ({
           style={{ ...STYLES, display: 'flex', flexDirection: 'column', overflow: 'auto', ...diagramContainerStyles }}
           onScroll={handleScroll}
           ref={combinedRef}
-          {...panZoomHandlers}
           className="diagramContainer"
         >
           {renderHeader ? renderHeader() : null}
@@ -42,7 +51,8 @@ const PanAndZoomContainer = ({
             style={{
               ...STYLES,
               overflow: 'visible',
-              position: 'relative',
+              position: 'fixed',
+              transform: transform,
             }}
           >
             {children()}
